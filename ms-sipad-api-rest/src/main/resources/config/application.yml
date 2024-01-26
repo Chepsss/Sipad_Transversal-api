@@ -1,0 +1,49 @@
+server:
+  port: 8089
+  servlet:
+    context-path: /ms-sipad-api
+
+spring:
+  application:
+    name: MS-SIPAD
+  datasource:
+    aadba:
+      url: ${AADBA_DATASOURCE_URL:jdbc:oracle:thin:@//10.206.194.110:1521/SOADB.ORACLE.COM}
+      username: ${AADBA_DB_SIPAD_USERNAME:AADBA}
+      password: ${AADBA_DB_SIPAD_PASSWORD:sipadWelcome1}
+
+    aastg:
+      url: ${AASTG_DATASOURCE_URL:jdbc:oracle:thin:@//10.206.194.110:1521/SOADB.ORACLE.COM}
+      username: ${AASTG_DB_SIPAD_USERNAME:AASTG}
+      password: ${AASTG_DB_SIPAD_PASSWORD:aastg}
+  data:
+    web: # DATA WEB (SpringDataWebProperties)
+      pageable:
+        default-page-size: 20         # Default page size.
+        max-page-size: 2000           # Maximum page size to be accepted.
+        one-indexed-parameters: false # Whether to expose and assume 1-based page number indexes.
+        page-parameter: page          # Page index parameter name.
+        prefix:                       # General prefix to be prepended to the page number and page size parameters.
+        qualifier-delimiter: _        # Delimiter to be used between the qualifier and the actual page number and size properties.
+        size-parameter: size          # Page size parameter name.
+        sort-parameter: sort          # Sort parameter name.
+
+  jpa:
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    it.almaviva.difesa: ${LOGGING_SIPAD_LEVEL:INFO}
+  file:
+    path: ${LOGGING_PATH:./logs}
+    name: ${LOGGING_NAME:logs/${spring.application.name}.log}
+  logback:
+    rollingpolicy:
+      max-history: ${LOGGING_HISTORY:5}
+      max-file-size: ${LOGGING_MAX_SIZE:10MB}
+  pattern:
+    console: "%-30(%d{dd-MM-yyyy HH:mm:ss.SSS} %highlight(%-5level) %yellow([%thread]) %cyan(%logger{40}.%M\\(%class{0}.java:%line\\)) : %msg%throwable%n)"
+    file: "%-30(%d{dd-MM-yyyy HH:mm:ss.SSS} %highlight(%-5level) %yellow([%thread]) %cyan(%logger{40}.%M\\(%class{0}.java:%line\\)) : %msg%throwable%n)"

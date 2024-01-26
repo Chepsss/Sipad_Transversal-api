@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-sipad-api
+  labels:
+    app.kubernetes.io/name: ms-sipad-api
+    app.kubernetes.io/instance: ms-sipad-api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8089
+      targetPort: 8089
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: ms-sipad-api
+    app.kubernetes.io/instance: ms-sipad-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-sipad-api
+  labels:
+    app.kubernetes.io/name: ms-sipad-api
+    app.kubernetes.io/instance: ms-sipad-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ms-sipad-api
+      app.kubernetes.io/instance: ms-sipad-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ms-sipad-api
+        app.kubernetes.io/instance: ms-sipad-api
+    spec:
+      imagePullSecrets:
+        - name: difesa-sipad-user
+      serviceAccountName: default
+      securityContext:
+        {}
+      containers:
+        - env:
+          - name: DB_SIPAD_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: spring.datasource.password
+                name: db-sipad-secret
+          - name: DB_SIPAD_USERNAME
+            valueFrom:
+              secretKeyRef:
+                key: spring.datasource.username
+                name:
+                  db-sipad-secret
+          envFrom:
+           - configMapRef:
+                name: sipad-config-map
+          name: ms-sipad-api
+          securityContext:
+            {}
+          image: almaviva.jfrog.io/difesa-sipad-docker/transversal/ms-sipad-api:#{Build.BuildId}#
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8089
+              protocol: TCP
+          resources:
+            {}
+---
